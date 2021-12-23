@@ -1,0 +1,6 @@
+= Table.RenameColumns(#"Previous Step",
+{
+{Table.ColumnNames(#"Previous Step"){1}, "Project ID"},
+{Table.ColumnNames(#"Previous Step"){2}, "Input Date"}
+}
+)
