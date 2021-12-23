@@ -1,0 +1,4 @@
+
+    ColNames = Table.ColumnNames(Table.Combine(#"Previous Step"[Data])),
+    ExpandTable = Table.ExpandTableColumn(#"Previous Step", "Data", ColNames),
+    #"Promoted Headers" = Table.PromoteHeaders(ExpandTable, [PromoteAllScalars=true]),
