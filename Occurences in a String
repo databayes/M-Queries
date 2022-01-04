@@ -1,0 +1,7 @@
+List.Count(Text.PositionOf([Functional Location],"-",Occurrence.All ))
+
+//Or you could turn the "-" parameter into a list by enclosing it in curly braces
+
+List.Count(Text.PositionOfAny([Functional Location],{"-"},Occurrence.All ))
+
+//https://community.powerbi.com/t5/Desktop/How-to-count-a-specify-letter-in-a-string-in-power-query-m/m-p/692178#M333812
