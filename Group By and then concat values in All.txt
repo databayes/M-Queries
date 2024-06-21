@@ -1,0 +1,24 @@
+// Group by Column(s), then concat values from each column as a text list so can see all entries for grouped field
+
+let
+    // Load your data (assumed to be named 'ExtractClientRef')
+    Source = ExtractClientRef,
+    
+    // Group by 'ClientRef' column
+    GroupedData = Table.Group(
+        Source, 
+        {"ClientRef"}, 
+        {
+            // Count the number of rows for each 'ClientRef'
+            {"Count", each Table.RowCount(_), Int64.Type},
+            
+            // Concatenate values in each column as a text list
+            {"Will / Codicil", each Text.Combine(List.Transform([#"Will / Codicil"], Text.From), ", "), type text},
+            {"Type", each Text.Combine(List.Transform([Type], Text.From), ", "), type text},
+            {"Joint or Single", each Text.Combine(List.Transform([Joint or Single], Text.From), ", "), type text},
+            {"MAT_Ref", each Text.Combine(List.Transform([MAT_Ref], Text.From), ", "), type text},
+            {"All", each _, type table [#"Will / Codicil"=text, Type=text, Joint or Single=nullable text, MAT_Ref=nullable text, ClientRef=text]}
+        }
+    )
+in
+    GroupedData

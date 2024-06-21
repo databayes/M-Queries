@@ -1,0 +1,14 @@
+let
+    Source = PlanningHeaderDetail,
+    #"Removed Other Columns" = Table.SelectColumns(Source,{"Received Date"}),
+    #"Filtered Rows" = Table.SelectRows(#"Removed Other Columns", let earliest = List.Min(#"Removed Other Columns"[Received Date]) in each [Received Date] = earliest),
+    #"Removed Duplicates" = Table.Distinct(#"Filtered Rows"),
+    #"Changed Type" = Table.TransformColumnTypes(#"Removed Duplicates",{{"Received Date", type date}}),
+    #"Calculated Start of Year" = Table.TransformColumns(#"Changed Type",{{"Received Date", Date.StartOfYear, type date}}),
+    Date = #"Calculated Start of Year"{0}[Received Date]
+in
+    Date
+
+
+
+4 meta [IsParameterQuery=true, Type="Any", IsParameterQueryRequired=true]

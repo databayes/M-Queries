@@ -1,0 +1,10 @@
+let
+    Source = Invoice
+    #"Removed Other Columns" = Table.SelectColumns(Source,{"Transaction Date"}),
+    #"Filtered Rows" = Table.SelectRows(#"Removed Other Columns", let latest = List.Max(#"Removed Other Columns"[Transaction Date]) in each [Transaction Date] = latest),
+    #"Removed Duplicates" = Table.Distinct(#"Filtered Rows"),
+    #"Changed Type" = Table.TransformColumnTypes(#"Removed Duplicates",{{"Transaction Date", type date}}),
+    #"Calculated End of Year" = Table.TransformColumns(#"Changed Type",{{"Transaction Date", Date.EndOfYear, type date}}),
+    Date = #"Calculated End of Year"{0}[Transaction Date]
+in
+    Date

@@ -1,0 +1,12 @@
+﻿(Table) =>
+let
+    Custom1 = Record.ToTable(Table{0}),
+    #"Changed Type" = Table.TransformColumnTypes(Custom1,{{"Value", type text}}),
+    #"Replaced Value" = Table.ReplaceValue(#"Changed Type",null, "A",Replacer.ReplaceValue,{"Value"}),
+	// Here you can add additional type-conversions if needed
+    Types = Table.AddColumn(#"Replaced Value", "Type", 
+					each Value.Type(try Number.From([Value]) otherwise try Date.From([Value]) otherwise  try Text.From([Value]) otherwise "A" as any)),
+    TypeConversions = Table.TransformColumnTypes(Table,List.Zip({Table.ColumnNames(Table), Types[Type]}))
+in
+    TypeConversions
+	

@@ -1,0 +1,6 @@
+    Custom1 = Record.FieldNames(Record.Combine(List.Select(Table.Column(#"Converted to Table", "Column1"), each _ <> "" and _ <> null))),
+    Custom2 = Table.ExpandRecordColumn(#"Converted to Table", "Column1", Custom1),
+	
+	
+	
+	https://eriksvensen.wordpress.com/2019/10/05/powerquery-control-the-expand-columns-so-it-includes-new-columns/

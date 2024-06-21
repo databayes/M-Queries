@@ -1,0 +1,7 @@
+= Table.AddColumn(Source, "Answer Expected", each [
+  a = Text.ToList( [Word1] ),
+  b = Text.ToList( [Word2] ),
+  c = List.Distinct( List.Intersect({a, b})),
+  d = List.Sort(c),
+  e = Text.Combine( d, ", ")
+][e])

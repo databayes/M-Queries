@@ -1,0 +1,1 @@
+= Text.Combine(List.Select({[Col1],[Col2],[Col3],[Col4]}, each _<> "" and _ <> null)," & ")

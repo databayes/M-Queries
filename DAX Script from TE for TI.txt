@@ -1,0 +1,227 @@
+----------------------------------
+-- Measure: [YTLM]
+----------------------------------
+MEASURE '_Measures'[YTLM] = 
+    IF(
+        [ShowValueForDates],
+        CALCULATE(
+            SELECTEDMEASURE(),
+            'Date'[Current Month?] = FALSE
+        )
+    )
+    FormatString = "#,0.00"
+
+---------------------------------
+-- Measure: [YTD]
+---------------------------------
+MEASURE '_Measures'[YTD] = 
+    IF(
+        [ShowValueForDates],
+        CALCULATE(
+            SELECTEDMEASURE(),
+            DATESYTD( 'Date'[Date], "31/03" )
+        )
+    )
+    FormatString = "#,0.00"
+
+-------------------------------------
+-- Measure: [YOYTD %]
+-------------------------------------
+MEASURE '_Measures'[YOYTD %] = DIVIDE( [YOYTD], [PYTD] )
+
+-----------------------------------
+-- Measure: [YOYTD]
+-----------------------------------
+MEASURE '_Measures'[YOYTD] = 
+    VAR ValueCurrentPeriod = [YTD]
+    VAR ValuePreviousPeriod = [PYTD]
+    VAR Result =
+        IF(
+            NOT ISBLANK( ValueCurrentPeriod )
+                && NOT ISBLANK( ValuePreviousPeriod ),
+            ValueCurrentPeriod - ValuePreviousPeriod
+        )
+    RETURN
+        Result
+    FormatString = "#,0.00"
+
+-----------------------------------
+-- Measure: [YOY %]
+-----------------------------------
+MEASURE '_Measures'[YOY %] = DIVIDE( [YOY], [PY] )
+    FormatString = "0.00%;-0.00%"
+
+---------------------------------
+-- Measure: [YOY]
+---------------------------------
+MEASURE '_Measures'[YOY] = 
+    VAR ValueCurrentPeriod = SELECTEDMEASURE()
+    VAR ValuePreviousPeriod = [PY]
+    VAR Result =
+        IF(
+            NOT ISBLANK( ValueCurrentPeriod )
+                && NOT ISBLANK( ValuePreviousPeriod ),
+            ValueCurrentPeriod - ValuePreviousPeriod
+        )
+    RETURN
+        Result
+    FormatString = "#,0.00"
+
+----------------------------------
+-- Measure: [PYTD]
+----------------------------------
+MEASURE '_Measures'[PYTD] = 
+    IF(
+        [ShowValueForDates],
+        CALCULATE(
+            [YTD],
+            CALCULATETABLE(
+                DATEADD( 'Date'[Date], -1, YEAR ),
+                'Date'[DateWithSales] = TRUE
+            )
+        )
+    )
+    FormatString = "#,0.00"
+
+--------------------------------
+-- Measure: [PY]
+--------------------------------
+MEASURE '_Measures'[PY] = 
+    IF(
+        [ShowValueForDates],
+        CALCULATE(
+            SELECTEDMEASURE(),
+            CALCULATETABLE(
+                DATEADD( 'Date'[Date], -1, YEAR ),
+                'Date'[DateWithSales] = TRUE
+            )
+        )
+    )
+    FormatString = "#,0.00"
+
+--------------------------------
+-- Measure: [PW]
+--------------------------------
+MEASURE '_Measures'[PW] = 
+    VAR WeekNumber = WEEKNUM( TODAY( ) )
+    VAR PreviousWeekNumber = WeekNumber - 1
+    VAR Result =
+        CALCULATE(
+            SELECTEDMEASURE(),
+            'Date'[Week Num] = PreviousWeekNumber
+        )
+    RETURN
+        Result
+    FormatString = "#,0.00"
+
+-----------------------------------
+-- Measure: [POP %]
+-----------------------------------
+MEASURE '_Measures'[POP %] = 
+    SWITCH(
+        TRUE,
+        ISINSCOPE( 'Date'[Month Year] ), [MOM %],
+        ISINSCOPE( 'Date'[Year] ), [YOY %]
+    )
+    Description = "Period over Period growth to detect level to show"
+    FormatString = "0.00%;-0.00%"
+
+----------------------------------
+-- Measure: [PMTD]
+----------------------------------
+MEASURE '_Measures'[PMTD] = 
+    IF(
+        [ShowValueForDates],
+        CALCULATE(
+            [MTD],
+            CALCULATETABLE(
+                DATEADD( 'Date'[Date], -1, MONTH ),
+                'Date'[DateWithSales] = TRUE
+            )
+        )
+    )
+    FormatString = "#,0.00"
+
+--------------------------------
+-- Measure: [PM]
+--------------------------------
+MEASURE '_Measures'[PM] = 
+    IF(
+        [ShowValueForDates],
+        CALCULATE(
+            SELECTEDMEASURE(),
+            CALCULATETABLE(
+                DATEADD( 'Date'[Date], -1, MONTH ),
+                'Date'[DateWithSales] = TRUE
+            )
+        )
+    )
+    FormatString = "#,0.00"
+
+---------------------------------
+-- Measure: [MTD]
+---------------------------------
+MEASURE '_Measures'[MTD] = 
+    IF(
+        [ShowValueForDates],
+        CALCULATE( SELECTEDMEASURE(), DATESMTD( 'Date'[Date] ) )
+    )
+    FormatString = "#,0.00"
+
+-------------------------------------
+-- Measure: [MOMTD %]
+-------------------------------------
+MEASURE '_Measures'[MOMTD %] = DIVIDE( [MOMTD], [PMTD] )
+    FormatString = "0.00%;-0.00%"
+
+-----------------------------------
+-- Measure: [MOMTD]
+-----------------------------------
+MEASURE '_Measures'[MOMTD] = 
+    VAR ValueCurrentPeriod = [MTD]
+    VAR ValuePreviousPeriod = [PMTD]
+    VAR Result =
+        IF(
+            NOT ISBLANK( ValueCurrentPeriod )
+                && NOT ISBLANK( ValuePreviousPeriod ),
+            ValueCurrentPeriod - ValuePreviousPeriod
+        )
+    RETURN
+        Result
+    FormatString = "#,0.00"
+
+-----------------------------------
+-- Measure: [MOM %]
+-----------------------------------
+MEASURE '_Measures'[MOM %] = DIVIDE( [MOM], [PM] )
+    FormatString = "0.00%;-0.00%"
+
+---------------------------------
+-- Measure: [MOM]
+---------------------------------
+MEASURE '_Measures'[MOM] = 
+    VAR ValueCurrentPeriod = SELECTEDMEASURE()
+    VAR ValuePreviousPeriod = [PM]
+    VAR Result =
+        IF(
+            NOT ISBLANK( ValueCurrentPeriod )
+                && NOT ISBLANK( ValuePreviousPeriod ),
+            ValueCurrentPeriod - ValuePreviousPeriod
+        )
+    RETURN
+        Result
+    FormatString = "#,0.00"
+
+--------------------------------
+-- Measure: [CW]
+--------------------------------
+MEASURE '_Measures'[CW] = CALCULATE( SELECTEDMEASURE(), 'Date'[Current Week?] = TRUE )
+    Description = "Current Week of Net Billed Time"
+    FormatString = "#,0.00"
+
+-----------------------------
+-- Measure: SELECTEDMEASURE()
+-----------------------------
+MEASURE '_Measures'SELECTEDMEASURE() = SUM( 'Time'[TIM_Net_Billed] )
+    Description = "SUM( 'Time'[TIM_Net_Billed] )"
+    FormatString = "#,0.00"

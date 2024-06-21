@@ -1,0 +1,11 @@
+let
+    Source = #shared,
+    tshared = Record.ToTable(Source),
+    #"Text functions" = Table.SelectRows(tshared, each Text.StartsWith([Name], "Text")),
+    #"Table functions" = Table.SelectRows(tshared, each Text.StartsWith([Name], "Table")),
+    #"List functions" = Table.SelectRows(tshared, each Text.StartsWith([Name], "List")),
+    #"Date functions" = Table.SelectRows(tshared, each Text.StartsWith([Name], "Date")),
+    #"Logical functions" = Table.SelectRows(tshared, each Text.StartsWith([Name], "Logical")),
+    #"Number functions" = Table.SelectRows(tshared, each Text.StartsWith([Name], "Number"))
+in
+    #"Number functions"

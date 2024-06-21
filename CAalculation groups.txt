@@ -1,0 +1,107 @@
+-- Calculation Item YTD
+IF (
+    [ShowValueForDates],
+    CALCULATE ( 
+        SELECTEDMEASURE (), 
+        DATESYTD ( 'date'[date] ) 
+        )
+)
+
+-- Calculation Item QTD
+IF (
+    [ShowValueForDates],
+    CALCULATE ( 
+        SELECTEDMEASURE (), 
+        DATESQTD ( 'date'[date] ) 
+        )
+)
+
+-- Calculation Item MTD
+IF (
+    [ShowValueForDates],
+    CALCULATE ( 
+        SELECTEDMEASURE (), 
+        DATESMTD ( 'date'[date] ) 
+        )
+)
+
+
+-- Calculation Item FYTD
+IF (
+    [ShowValueForDates],
+    CALCULATE ( 
+        SELECTEDMEASURE (), 
+        DATESYTD ( 'date'[date] , "31/05") 
+        )
+)
+
+
+-- Calculation Item Sales PFYTD
+VAR CY = selectedmeasure()
+VAR FYTD = 
+IF (
+    [ShowValueForDates],
+    CALCULATE ( 
+        SELECTEDMEASURE (), 
+        DATESYTD ( 'date'[date], "31/05" ) 
+        )
+)
+VAR PFYTD = IF(
+    [ShowValueForDates],
+    CALCULATE(
+        FYTD,
+        CALCULATETABLE(
+            DATEADD('Date'[Date], -1, YEAR),
+            'Date'[DateWithSales] = TRUE
+        )
+    )
+)
+RETURN PFYTD
+
+-- Calculation Item YTD Var %
+VAR CY = selectedmeasure()
+VAR YTD = 
+IF (
+    [ShowValueForDates],
+    CALCULATE ( 
+        SELECTEDMEASURE (), 
+        DATESYTD ( 'date'[date]) 
+        )
+)
+VAR PYTD = IF(
+    [ShowValueForDates],
+    CALCULATE(
+        YTD,
+        CALCULATETABLE(
+            DATEADD('Date'[Date], -1, YEAR),
+            'Date'[DateWithSales] = TRUE
+        )
+    )
+)
+RETURN PYTD
+
+-- Calculation Item FYTD Var %
+
+VAR CY = selectedmeasure()
+VAR FYTD = 
+IF (
+    [ShowValueForDates],
+    CALCULATE ( 
+        SELECTEDMEASURE (), 
+        DATESYTD ( 'date'[date], "31/05" ) 
+        )
+)
+VAR PFYTD = IF(
+    [ShowValueForDates],
+    CALCULATE(
+        FYTD,
+        CALCULATETABLE(
+            DATEADD('Date'[Date], -1, YEAR),
+            'Date'[DateWithSales] = TRUE
+        )
+    )
+)
+VAR VFYTD = PFYTD - FYTD
+RETURN 
+DIVIDE (VFYTD, PFYTD)
+
