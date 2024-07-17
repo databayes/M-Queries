@@ -1,0 +1,17 @@
+let
+  Source = #"SharePoint Folder",
+  Filter = Table.SelectRows(Source, each Text.Contains([Folder Path], "Emails")),
+  CSVDocument = Table.AddColumn(Filter, "Custom", each Csv.Document([Content])),
+  Select = Table.SelectColumns(CSVDocument, {"Name", "Custom"}),
+  ColNames = Table.ColumnNames(Table.Combine(Select[Custom])),
+  ExpandTable = Table.ExpandTableColumn(Select, "Custom", ColNames),
+  Headers = Table.PromoteHeaders(ExpandTable, [PromoteAllScalars = true]),
+  RenameCol = Table.RenameColumns(Headers,
+{Table.ColumnNames(Headers){0}, "Date"}
+),
+  AddPrefix = Table.TransformColumns(RenameCol, {{"Date", each "01 " & _, type text}}),
+  RemoveCSV = Table.ReplaceValue(AddPrefix, ".csv", "", Replacer.ReplaceText, {"Date"}),
+  SetType = Table.TransformColumnTypes(RemoveCSV, {{"Date", type date}, {"Doc Date", type date}, {"Client Ref", type text}, {"Notes", type text}, {"Letter Title", type text}, {"Contact", type text}, {"Email", type text}, {"Address1", type text}, {"Address2", type text}, {"Address3", type text}, {"Address4", type text}, {"PostCode", type text}}),
+  AddSource = Table.AddColumn(SetType, "Type of Contact", each "Email", type text)
+in
+  AddSource
