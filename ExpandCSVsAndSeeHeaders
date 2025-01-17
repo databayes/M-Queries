@@ -1,0 +1,28 @@
+let
+    // Step 1: Load the data
+    Source = RawData,
+    #"Filtered Rows" = Table.SelectRows(Source, each ([Extension] = ".csv")),
+    
+    // Step 2: Parse each CSV file into a table
+    CSVDocument = Table.AddColumn(#"Filtered Rows", "Custom", each Csv.Document([Content])),
+    
+    // Step 3: Promote the first row as headers
+    PromotedHeaders = Table.AddColumn(CSVDocument, "Custom.1", each Table.PromoteHeaders(Csv.Document([Content]))),
+    
+    // Step 5: Add a column containing the headers of each table
+    AddHeadersColumn = Table.AddColumn(PromotedHeaders, "Table Headers with Index", each 
+        let
+            // Step 5.1: Convert the list of column names to a table
+            HeaderTable = Table.FromList(Table.ColumnNames([Custom.1]), Splitter.SplitByNothing(), {"Column Name"}),
+
+            // Step 5.2: Add an index column to the header table
+            HeaderWithIndex = Table.AddIndexColumn(HeaderTable, "Column Order", 1, 1, Int64.Type)
+        in
+            HeaderWithIndex
+    ),
+    #"Removed Other Columns" = Table.SelectColumns(AddHeadersColumn,{"Name", "Table Headers with Index"}),
+    #"Extracted Text Before Delimiter" = Table.TransformColumns(#"Removed Other Columns", {{"Name", each Text.BeforeDelimiter(_, "_", {0, RelativePosition.FromEnd}), type text}}),
+    #"Expanded Table Headers with Index" = Table.ExpandTableColumn(#"Extracted Text Before Delimiter", "Table Headers with Index", {"Column Name", "Column Order"}, {"Column Name", "Column Order"}),
+    #"Pivoted Column" = Table.Pivot(Table.TransformColumnTypes(#"Expanded Table Headers with Index", {{"Column Order", type text}}, "en-GB"), List.Distinct(Table.TransformColumnTypes(#"Expanded Table Headers with Index", {{"Column Order", type text}}, "en-GB")[#"Column Order"]), "Column Order", "Column Name")
+in
+    #"Pivoted Column"
