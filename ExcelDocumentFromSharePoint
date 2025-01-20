@@ -5,3 +5,14 @@ let
     Select = Table.SelectColumns(TransformBinary,{"Name", "Folder Path", "Custom"})
 in
     Select
+
+
+
+let
+    Source = SharePoint,
+    Filter = Table.SelectRows(Source, each Text.Contains([Folder Path], "FolderYouWantToKeep"))[[Name],[Custom]],
+    ExpandData = Table.ExpandTableColumn(Filter, "Custom", {"Data"}, {"Data"}),
+    ColNames = Table.ColumnNames(Table.Combine(ExpandData[Data])),
+    ExpandTable = Table.ExpandTableColumn(ExpandData, "Data", ColNames)
+in
+    ExpandTable
