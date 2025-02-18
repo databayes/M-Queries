@@ -1,11 +1,27 @@
+// Function: fnSetHeaderRow
+// Parameters:
+// - Data: The input table
+// - HeaderText: The text value to identify the header row
+
 let
-    Source = SharePointData,
-    #"Filtered Rows" = Table.SelectRows(Source, each ([Name] = "SOO Excel Commerical Acumen.xlsx")),
-    ExpandData = Table.ExpandTableColumn(#"Filtered Rows", "Custom", {"Name", "Data", "Item", "Kind"}, {"Name.1", "Data", "Item", "Kind"}),
-    Data = ExpandData{2}[Data],
-    HeaderValue = Table.SelectRows(Data, each ([Column1] = "User_ID"))[Column1]{0},
-    PositionOf = List.PositionOf(Data[Column1], HeaderValue, 1),
-    RemoveTopRows = Table.Skip(Data, PositionOf),
-    PromoteHeaders = Table.PromoteHeaders(RemoveTopRows, [PromoteAllScalars=true]),
+    fnSetHeaderRow = (Data as table, HeaderText as text) as table =>
+    let
+        // Step 1: Find the first row where HeaderText appears
+        HeaderRow = Table.SelectRows(Data, each ([Column1] = HeaderText)),
+
+        // Step 2: Get the first occurrence of the header value
+        HeaderValue = if Table.RowCount(HeaderRow) > 0 then HeaderRow[Column1]{0} else null,
+
+        // Step 3: Find the position of this header in the dataset
+        PositionOf = if HeaderValue <> null then List.PositionOf(Data[Column1], HeaderValue, 1) else -1,
+
+        // Step 4: Remove rows above the identified header
+        RemoveTopRows = if PositionOf >= 0 then Table.Skip(Data, PositionOf) else Data,
+
+        // Step 5: Promote the first row as headers
+        PromoteHeaders = Table.PromoteHeaders(RemoveTopRows, [PromoteAllScalars=true])
+        
+    in
+        PromoteHeaders
 in
-    PromoteHeaders
+    fnSetHeaderRow
