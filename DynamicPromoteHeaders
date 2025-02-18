@@ -1,0 +1,11 @@
+let
+    Source = SharePointData,
+    #"Filtered Rows" = Table.SelectRows(Source, each ([Name] = "SOO Excel Commerical Acumen.xlsx")),
+    ExpandData = Table.ExpandTableColumn(#"Filtered Rows", "Custom", {"Name", "Data", "Item", "Kind"}, {"Name.1", "Data", "Item", "Kind"}),
+    Data = ExpandData{2}[Data],
+    HeaderValue = Table.SelectRows(Data, each ([Column1] = "User_ID"))[Column1]{0},
+    PositionOf = List.PositionOf(Data[Column1], HeaderValue, 1),
+    RemoveTopRows = Table.Skip(Data, PositionOf),
+    PromoteHeaders = Table.PromoteHeaders(RemoveTopRows, [PromoteAllScalars=true]),
+in
+    PromoteHeaders
